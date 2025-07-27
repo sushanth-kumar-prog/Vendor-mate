@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VendorMate - Street Vendor Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF7A00;
+            --secondary: #4A90E2;
+            --success: #27AE60;
+            --warning: #F39C12;
+            --danger: #E74C3C;
+            --dark: #2C3E50;
+            --light: #ECF0F1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa, #e4e7ec);
+            color: #333;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card.alert {
+            background: linear-gradient(to right, #fff8f8, #ffeded);
+            border-left: 4px solid var(--danger);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background: linear-gradient(135deg, #FF7A00, #FF9E48);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(255, 122, 0, 0.3);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .vendor-id {
+            background: rgba(255,255,255,0.2);
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
+        }
+        
+        .btn:hover {
+            background: #e06a00;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(255, 122, 0, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: #3a7bc8;
+            box-shadow: 0 6px 16px rgba(74, 144, 226, 0.4);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.2);
+        }
+        
+        .voice-input {
+            position: relative;
+        }
+        
+        .voice-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .voice-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .voice-btn.listening {
+            animation: pulse 1.5s infinite;
+            color: var(--danger);
+        }
+        
+        .stock-list {
+            list-style: none;
+        }
+        
+        .stock-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+        }
+        
+        .stock-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .stock-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .stock-qty {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .low-stock {
+            color: var(--danger);
+        }
+        
+        .vendor-list {
+            list-style: none;
+        }
+        
+        .vendor-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+        }
+        
+        .vendor-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .vendor-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .vendor-distance {
+            background: var(--light);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 350px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f8ff;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 20px;
+            max-width: 80%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.self {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            margin: 0;
+            padding: 15px 20px;
+        }
+        
+        .sync-status {
+            text-align: center;
+            font-weight: 700;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .sync-status.synced {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+        }
+        
+        .sync-status.syncing {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+        
+        .sync-status.error {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+        
+        .emoji {
+            font-size: 1.4rem;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+            color: var(--dark);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-store"></i> VendorMate</h1>
+        <p class="tagline">Inventory Management & Community Platform for Street Vendors</p>
+        <div class="vendor-id">
+            <i class="fas fa-id-card"></i> Your Vendor ID: <span id="vendorId">VM4567</span>
+        </div>
+    </div>
+    
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-label"><i class="fas fa-box-open"></i> Total Items</div>
+            <div class="stat-value">12</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label"><i class="fas fa-exchange-alt"></i> Transactions Today</div>
+            <div class="stat-value">28</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label"><i class="fas fa-users"></i> Nearby Vendors</div>
+            <div class="stat-value">5</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label"><i class="fas fa-comments"></i> Unread Messages</div>
+            <div class="stat-value">3</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Use Item -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="emoji fas fa-minus-circle"></i> Use Item</h3>
+            </div>
+            <div class="voice-input">
+                <input type="text" id="itemName" placeholder="Say or type item name (e.g., Rice, Tomatoes)">
+                <button class="voice-btn" id="voiceBtn"><i class="fas fa-microphone"></i></button>
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <input type="number" id="itemQty" placeholder="Quantity" value="1" min="1" style="flex: 1;">
+                <select id="itemUnit" style="flex: 1;">
+                    <option value="kg">kg</option>
+                    <option value="g">grams</option>
+                    <option value="liters">liters</option>
+                    <option value="pieces">pieces</option>
+                </select>
+            </div>
+            <button class="btn" id="useItemBtn"><i class="fas fa-cart-arrow-down"></i> Record Usage</button>
+        </div>
+        
+        <!-- Stock Levels -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="emoji fas fa-boxes"></i> Current Stock</h3>
+                <button class="btn btn-secondary" id="refreshStockBtn"><i class="fas fa-sync"></i> Refresh</button>
+            </div>
+            <ul class="stock-list" id="stockList">
+                <li class="stock-item">
+                    <div class="stock-info">
+                        <div class="stock-icon"><i class="fas fa-wheat-awn"></i></div>
+                        <div>Rice</div>
+                    </div>
+                    <div class="stock-qty">5 kg</div>
+                </li>
+                <li class="stock-item">
+                    <div class="stock-info">
+                        <div class="stock-icon"><i class="fas fa-onion"></i></div>
+                        <div>Onions</div>
+                    </div>
+                    <div class="stock-qty">8 kg</div>
+                </li>
+                <li class="stock-item">
+                    <div class="stock-info">
+                        <div class="stock-icon"><i class="fas fa-apple-whole"></i></div>
+                        <div>Tomatoes</div>
+                    </div>
+                    <div class="stock-qty low-stock">2 kg</div>
+                </li>
+                <li class="stock-item">
+                    <div class="stock-info">
+                        <div class="stock-icon"><i class="fas fa-oil-can"></i></div>
+                        <div>Cooking Oil</div>
+                    </div>
+                    <div class="stock-qty low-stock">3 liters</div>
+                </li>
+                <li class="stock-item">
+                    <div class="stock-info">
+                        <div class="stock-icon"><i class="fas fa-bread-slice"></i></div>
+                        <div>Flour</div>
+                    </div>
+                    <div class="stock-qty">10 kg</div>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Low Stock Alert -->
+        <div class="card alert">
+            <div class="card-header">
+                <h3 class="card-title"><i class="emoji fas fa-exclamation-triangle"></i> Low Stock Alert</h3>
+            </div>
+            <p>You're running low on these items. Reorder soon!</p>
+            <ul id="lowStockItems" style="margin: 15px 0 20px 20px;">
+                <li><i class="fas fa-apple-whole"></i> Tomatoes - 2 kg (critical)</li>
+                <li><i class="fas fa-oil-can"></i> Cooking Oil - 3 liters (low)</li>
+            </ul>
+            <button class="btn btn-warning" id="orderBtn"><i class="fas fa-truck"></i> Order Supplies</button>
+        </div>
+        
+        <!-- Nearby Vendors -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="emoji fas fa-users"></i> Nearby Vendors</h3>
+                <button class="btn btn-secondary" id="findVendorsBtn"><i class="fas fa-search-location"></i> Find</button>
+            </div>
+            <ul class="vendor-list" id="vendorsList">
+                <li class="vendor-item">
+                    <div class="vendor-info">
+                        <div class="vendor-avatar">R</div>
+                        <div>
+                            <div>Ravi's Chaat Stall</div>
+                            <div style="font-size: 0.9rem; color: #666;">VM1234</div>
+                        </div>
+                    </div>
+                    <div class="vendor-distance">500m</div>
+                </li>
+                <li class="vendor-item">
+                    <div class="vendor-info">
+                        <div class="vendor-avatar">P</div>
+                        <div>
+                            <div>Priya's Fruit Corner</div>
+                            <div style="font-size: 0.9rem; color: #666;">VM5678</div>
+                        </div>
+                    </div>
+                    <div class="vendor-distance">800m</div>
+                </li>
+                <li class="vendor-item">
+                    <div class="vendor-info">
+                        <div class="vendor-avatar">S</div>
+                        <div>
+                            <div>Sanjay's Spice Shop</div>
+                            <div style="font-size: 0.9rem; color: #666;">VM9012</div>
+                        </div>
+                    </div>
+                    <div class="vendor-distance">1.2km</div>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Community Chat -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="emoji fas fa-comments"></i> Community Chat</h3>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message">
+                        <div class="message-header">
+                            <span>Ravi (VM1234)</span>
+                            <span class="message-time">10:15 AM</span>
+                        </div>
+                        <div>Anyone have extra tomatoes today? I'm running low!</div>
+                    </div>
+                    <div class="message self">
+                        <div class="message-header">
+                            <span>You</span>
+                            <span class="message-time">10:17 AM</span>
+                        </div>
+                        <div>I have 2kg left, can spare 1kg if you need</div>
+                    </div>
+                    <div class="message">
+                        <div class="message-header">
+                            <span>Priya (VM5678)</span>
+                            <span class="message-time">10:20 AM</span>
+                        </div>
+                        <div>Best supplier for cooking oil? Mine doubled prices this week</div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Type your message...">
+                    <button class="btn btn-success" id="sendBtn"><i class="fas fa-paper-plane"></i> Send</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sync Status -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="emoji fas fa-cloud"></i> Data Sync</h3>
+            </div>
+            <p style="margin-bottom: 20px;">Sync your data with the server to ensure everything is up-to-date</p>
+            <button class="btn" id="syncBtn"><i class="fas fa-cloud-upload-alt"></i> Sync Now</button>
+            <div class="sync-status synced" id="syncStatus">
+                <i class="fas fa-check-circle"></i> All data synced with server!
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        VendorMate - Empowering Street Vendors | &copy; 2023 All Rights Reserved
+    </footer>
+
+    <script>
+        // Vendor data storage
+        const vendorData = {
+            id: "VM4567",
+            name: "Raj's Street Food Stall",
+            stock: {
+                "Rice": { qty: 5, unit: "kg" },
+                "Onions": { qty: 8, unit: "kg" },
+                "Tomatoes": { qty: 2, unit: "kg" },
+                "Cooking Oil": { qty: 3, unit: "liters" },
+                "Flour": { qty: 10, unit: "kg" },
+                "Lentils": { qty: 7, unit: "kg" },
+                "Spices": { qty: 5, unit: "packets" }
+            },
+            lowStockThreshold: 3
+        };
+
+        // DOM Elements
+        const vendorIdElement = document.getElementById('vendorId');
+        const itemNameInput = document.getElementById('itemName');
+        const itemQtyInput = document.getElementById('itemQty');
+        const itemUnitSelect = document.getElementById('itemUnit');
+        const useItemBtn = document.getElementById('useItemBtn');
+        const stockList = document.getElementById('stockList');
+        const lowStockItems = document.getElementById('lowStockItems');
+        const findVendorsBtn = document.getElementById('findVendorsBtn');
+        const vendorsList = document.getElementById('vendorsList');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const syncBtn = document.getElementById('syncBtn');
+        const syncStatus = document.getElementById('syncStatus');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const refreshStockBtn = document.getElementById('refreshStockBtn');
+        const orderBtn = document.getElementById('orderBtn');
+
+        // Initialize app
+        function initApp() {
+            vendorIdElement.textContent = vendorData.id;
+            updateStockList();
+            updateLowStockAlert();
+        }
+
+        // Update stock list display
+        function updateStockList() {
+            stockList.innerHTML = '';
+            
+            for (const [item, data] of Object.entries(vendorData.stock)) {
+                const listItem = document.createElement('li');
+                listItem.className = 'stock-item';
+                
+                const stockInfo = document.createElement('div');
+                stockInfo.className = 'stock-info';
+                
+                const stockIcon = document.createElement('div');
+                stockIcon.className = 'stock-icon';
+                
+                // Assign appropriate icons
+                if (item.includes('Rice') || item.includes('Flour') || item.includes('Lentils')) {
+                    stockIcon.innerHTML = '<i class="fas fa-wheat-awn"></i>';
+                } else if (item.includes('Onions') || item.includes('Tomatoes')) {
+                    stockIcon.innerHTML = '<i class="fas fa-apple-whole"></i>';
+                } else if (item.includes('Oil')) {
+                    stockIcon.innerHTML = '<i class="fas fa-oil-can"></i>';
+                } else {
+                    stockIcon.innerHTML = '<i class="fas fa-box"></i>';
+                }
+                
+                const itemName = document.createElement('div');
+                itemName.textContent = item;
+                
+                stockInfo.appendChild(stockIcon);
+                stockInfo.appendChild(itemName);
+                
+                const itemQty = document.createElement('div');
+                itemQty.className = 'stock-qty';
+                itemQty.textContent = `${data.qty} ${data.unit}`;
+                
+                if (data.qty <= vendorData.lowStockThreshold) {
+                    itemQty.classList.add('low-stock');
+                }
+                
+                listItem.appendChild(stockInfo);
+                listItem.appendChild(itemQty);
+                stockList.appendChild(listItem);
+            }
+        }
+
+        // Update low stock alert
+        function updateLowStockAlert() {
+            lowStockItems.innerHTML = '';
+            let hasLowStock = false;
+            
+            for (const [item, data] of Object.entries(vendorData.stock)) {
+                if (data.qty <= vendorData.lowStockThreshold) {
+                    hasLowStock = true;
+                    const listItem = document.createElement('li');
+                    
+                    let icon = '<i class="fas fa-box"></i>';
+                    if (item.includes('Rice') || item.includes('Flour') || item.includes('Lentils')) {
+                        icon = '<i class="fas fa-wheat-awn"></i>';
+                    } else if (item.includes('Onions') || item.includes('Tomatoes')) {
+                        icon = '<i class="fas fa-apple-whole"></i>';
+                    } else if (item.includes('Oil')) {
+                        icon = '<i class="fas fa-oil-can"></i>';
+                    }
+                    
+                    const status = data.qty <= 1 ? 'critical' : 'low';
+                    listItem.innerHTML = `${icon} ${item} - ${data.qty} ${data.unit} (${status})`;
+                    lowStockItems.appendChild(listItem);
+                }
+            }
+            
+            document.querySelector('.card.alert').style.display = hasLowStock ? 'block' : 'none';
+        }
+
+        // Use item functionality
+        useItemBtn.addEventListener('click', () => {
+            const item = itemNameInput.value.trim();
+            const qty = parseInt(itemQtyInput.value) || 1;
+            const unit = itemUnitSelect.value;
+            
+            if (!item) {
+                showNotification("Please enter an item name", "warning");
+                return;
+            }
+            
+            // Find matching item (case-insensitive)
+            const matchingItem = Object.keys(vendorData.stock).find(
+                stockItem => stockItem.toLowerCase() === item.toLowerCase()
+            );
+            
+            if (matchingItem) {
+                if (vendorData.stock[matchingItem].qty >= qty) {
+                    vendorData.stock[matchingItem].qty -= qty;
+                    updateStockList();
+                    updateLowStockAlert();
+                    
+                    showNotification(`Used ${qty}${unit} of ${matchingItem}`, "success");
+                    
+                    itemNameInput.value = '';
+                    itemQtyInput.value = '1';
+                } else {
+                    showNotification(`Not enough stock! Only ${vendorData.stock[matchingItem].qty}${vendorData.stock[matchingItem].unit} available`, "error");
+                }
+            } else {
+                showNotification(`Item "${item}" not found in inventory`, "error");
+            }
+        });
+
+        // Voice input functionality
+        voiceBtn.addEventListener('click', () => {
+            if (!('webkitSpeechRecognition' in window)) {
+                showNotification("Voice recognition not supported in this browser", "error");
+                return;
+            }
+            
+            voiceBtn.classList.add('listening');
+            showNotification("Listening... Speak now", "info");
+            
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-IN';
+            recognition.start();
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                itemNameInput.value = transcript;
+                voiceBtn.classList.remove('listening');
+            };
+            
+            recognition.onerror = (event) => {
+                console.error("Speech recognition error", event.error);
+                showNotification("Voice recognition failed. Please try again.", "error");
+                voiceBtn.classList.remove('listening');
+            };
+        });
+
+        // Find nearby vendors
+        findVendorsBtn.addEventListener('click', () => {
+            showNotification("Finding nearby vendors...", "info");
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                vendorsList.innerHTML = '';
+                
+                const nearbyVendors = [
+                    { id: "VM1234", name: "Ravi's Chaat Stall", distance: "500m" },
+                    { id: "VM5678", name: "Priya's Fruit Corner", distance: "800m" },
+                    { id: "VM9012", name: "Sanjay's Spice Shop", distance: "1.2km" },
+                    { id: "VM3456", name: "Manoj's Tea Stall", distance: "1.5km" },
+                    { id: "VM7890", name: "Anita's Snack Corner", distance: "2.0km" }
+                ];
+                
+                nearbyVendors.forEach(vendor => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'vendor-item';
+                    
+                    const vendorInfo = document.createElement('div');
+                    vendorInfo.className = 'vendor-info';
+                    
+                    const vendorAvatar = document.createElement('div');
+                    vendorAvatar.className = 'vendor-avatar';
+                    vendorAvatar.textContent = vendor.name.charAt(0);
+                    
+                    const vendorDetails = document.createElement('div');
+                    const vendorName = document.createElement('div');
+                    vendorName.textContent = vendor.name;
+                    const vendorId = document.createElement('div');
+                    vendorId.style.fontSize = '0.9rem';
+                    vendorId.style.color = '#666';
+                    vendorId.textContent = vendor.id;
+                    
+                    vendorDetails.appendChild(vendorName);
+                    vendorDetails.appendChild(vendorId);
+                    
+                    vendorInfo.appendChild(vendorAvatar);
+                    vendorInfo.appendChild(vendorDetails);
+                    
+                    const vendorDistance = document.createElement('div');
+                    vendorDistance.className = 'vendor-distance';
+                    vendorDistance.textContent = vendor.distance;
+                    
+                    listItem.appendChild(vendorInfo);
+                    listItem.appendChild(vendorDistance);
+                    vendorsList.appendChild(listItem);
+                });
+                
+                showNotification(`Found ${nearbyVendors.length} nearby vendors`, "success");
+            }, 1500);
+        });
+
+        // Send chat message
+        sendBtn.addEventListener('click', () => {
+            const message = chatInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                chatInput.value = '';
+                
+                // Simulate response after delay
+                setTimeout(() => {
+                    const responses = [
+                        "Thanks for sharing!",
+                        "I'll check my stock and get back to you",
+                        "Can anyone help with this?",
+                        "Good to know!",
+                        "I have some extra if you need",
+                        "The market has good supply today",
+                        "I know a supplier with good prices"
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage(randomResponse, false);
+                }, 2000);
+            }
+        });
+
+        // Add message to chat
+        function addMessage(text, isSelf) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isSelf ? 'self' : ''}`;
+            
+            const now = new Date();
+            const timeString = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            const messageHeader = document.createElement('div');
+            messageHeader.className = 'message-header';
+            
+            const sender = document.createElement('span');
+            sender.textContent = isSelf ? 'You' : nearbyVendors[0].name + ' (' + nearbyVendors[0].id + ')';
+            
+            const time = document.createElement('span');
+            time.className = 'message-time';
+            time.textContent = timeString;
+            
+            messageHeader.appendChild(sender);
+            messageHeader.appendChild(time);
+            
+            const messageText = document.createElement('div');
+            messageText.textContent = text;
+            
+            messageDiv.appendChild(messageHeader);
+            messageDiv.appendChild(messageText);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Sync data
+        syncBtn.addEventListener('click', () => {
+            syncStatus.textContent = "Syncing data with server...";
+            syncStatus.className = "sync-status syncing";
+            syncBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                syncStatus.innerHTML = '<i class="fas fa-check-circle"></i> Data synced successfully!';
+                syncStatus.className = "sync-status synced";
+                syncBtn.disabled = false;
+                
+                showNotification("All data synchronized with server", "success");
+            }, 2000);
+        });
+
+        // Show notification
+        function showNotification(message, type) {
+            // In a real app, this would show a toast notification
+            console.log(`${type.toUpperCase()}: ${message}`);
+        }
+
+        // Order supplies
+        orderBtn.addEventListener('click', () => {
+            const lowStockItems = [];
+            for (const [item, data] of Object.entries(vendorData.stock)) {
+                if (data.qty <= vendorData.lowStockThreshold) {
+                    lowStockItems.push(item);
+                }
+            }
+            
+            if (lowStockItems.length > 0) {
+                showNotification(`Order placed for: ${lowStockItems.join(', ')}`, "success");
+            }
+        });
+
+        // Initialize the app
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
